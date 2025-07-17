@@ -3,7 +3,7 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 
 def train_model(model_name, X_train, y_train, params):
-    if model_name == "Linear Regression"):
+    if model_name == "Linear Regression":
         model = LinearRegression()
     elif model_name == "Decision Tree":
         model = DecisionTree(max_depth=params.get("max depth", None), randome_state=42)
