@@ -38,24 +38,23 @@ X = df[features]
 y = df[target]
 
 # train/test split
-test_size_n = st.sidebar.slider("Test Size (%)", 10, 20, 30)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size_n/100, random_state=42)
+test_size = st.sidebar.slider("Test Size (%)", 5, 10, 15, 20, 25, 30)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size/100, random_state=42)
 
 
 model_name = st.sidebar.selectbox("Choose Model", ["Linear Regression", "Decision Tree", "Random Forest"])
 
-from sklearn.linear_model import LinearRegression
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor
+# hyperparameters
+
+if model_name == "Decision Tree":
+    params["max depth"] = st.sidebar.slider("Max Depth", 1,5,10,20)
+elif model_name == "Random Forest":
+    params["n_estimators"] = st.sidebar.slider("Number of Trees", 10, 50, 100)
+    params["max depth"] = st.sidebar.slider("Max Depth", 1,5,10,20)
+
 
 if st.sidebar.button("Train Model"):
-    if model_name == "Linear Regression":
-        model = LinearRegression()
-    elif model_name == "Decision Tree":
-        model = DecisionTree(max_depth=7, random_state=42)
-    elif model_name == "Random Forest":
-        model = RandomForestRegressor(n_estimators = 100, max_depth=7, random_state=42)
-    model.fit(X_train, y_train)
+    model = train_model(model_name, X_train, y_train, params)
     y_pred = model.predict(X_test)
 
     st.subheader("Model Evaluation")
