@@ -44,14 +44,6 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size_n/
 
 model_name = st.sidebar.selectbox("Choose Model", ["Linear Regression", "Decision Tree", "Random Forest"])
 
-# hyperparameters
-
-if model_name == "Decision Tree":
-    params["max depth"] = st.sidebar.slider("Max Depth", 1,5,10,20)
-elif model_name == "Random Forest":
-    params["n_estimators"] = st.sidebar.slider("Number of Trees", 10, 50, 100)
-    params["max depth"] = st.sidebar.slider("Max Depth", 1,5,10,20)
-
 
 if st.sidebar.button("Train Model"):
     model = train_model(model_name, X_train, y_train)
