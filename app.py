@@ -54,7 +54,7 @@ elif model_name == "Random Forest":
 
 
 if st.sidebar.button("Train Model"):
-    model = train_model(model_name, X_train, y_train, params)
+    model = train_model(model_name, X_train, y_train)
     y_pred = model.predict(X_test)
 
     st.subheader("Model Evaluation")
