@@ -1,78 +1,76 @@
+# app.py
+
 import streamlit as st
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 from models import train_model
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-import statsmodels as sm
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
 
-st.set_page_config(page_title= "Regression Model App", layout = "wide")
+st.set_page_config(page_title="Regression Model App", layout="wide")
 
-st.title("Regression App")
+st.title("🏡 Housing Price Regression App")
 
-# upload the dataset
+# --- Upload dataset ---
 st.sidebar.header("Upload Dataset")
-uploaded_file = st.sidebar.file_uploader("Upoad your file", type=["csv"])
+uploaded_file = st.sidebar.file_uploader("Upload your CSV", type=["csv"])
 
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
 else:
     df = pd.read_csv("Ames_Housing_Subset.csv")
 
-
 st.write("### Dataset Preview", df.head())
 
-# feature selection
-
-target = st.sidebar.selectbox("Select target Variable:", df.columns)
+# --- Feature Selection ---
+target = st.sidebar.selectbox("Select Target Variable", df.columns)
 features = st.sidebar.multiselect("Select Feature Columns", [col for col in df.columns if col != target])
 
-
 if not features:
-    st.warning("Please select atleast one feature.")
+    st.warning("Please select at least one feature.")
     st.stop()
 
 X = df[features]
 y = df[target]
 
-# train/test split
-test_size = st.sidebar.slider("Test Size (%)", 5, 10, 15, 20, 25, 30)
+# --- Train/Test Split ---
+test_size = st.sidebar.slider("Test Size (%)", 10, 50, 20)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size/100, random_state=42)
 
-
+# --- Model Selection ---
 model_name = st.sidebar.selectbox("Choose Model", ["Linear Regression", "Decision Tree", "Random Forest"])
 
-# hyperparameters
-
+# --- Hyperparameters ---
+params = {}
 if model_name == "Decision Tree":
-    params["max depth"] = st.sidebar.slider("Max Depth", 1,5,10,20)
+    params["max_depth"] = st.sidebar.slider("Max Depth", 1, 20, 5)
 elif model_name == "Random Forest":
-    params["n_estimators"] = st.sidebar.slider("Number of Trees", 10, 50, 100)
-    params["max depth"] = st.sidebar.slider("Max Depth", 1,5,10,20)
+    params["n_estimators"] = st.sidebar.slider("Number of Trees", 10, 200, 100)
+    params["max_depth"] = st.sidebar.slider("Max Depth", 1, 20, 5)
 
-
+# --- Train Model ---
 if st.sidebar.button("Train Model"):
     model = train_model(model_name, X_train, y_train, params)
     y_pred = model.predict(X_test)
 
-    st.subheader("Model Evaluation")
-    st.write("Mean Absolute Error", mean_absolute_error(y_test, y_pred))
-    st.write("Mean Squared Error", mean_squared_error(y_test, y_pred))
-    st.write("R-square score", r2_score(y_test, y_pred))
+    st.subheader("📊 Model Evaluation")
+    st.write(f"**MAE:** {mean_absolute_error(y_test, y_pred):.2f}")
+    st.write(f"**MSE:** {mean_squared_error(y_test, y_pred):.2f}")
+    st.write(f"**R² Score:** {r2_score(y_test, y_pred):.2f}")
 
-    if hasattr(model, "feature_importances_"):
-        st.subheader("Feature Importasnce")
-        importance = pd.Series(model.feature_importances_, index = features).sort_values(ascending = True)
+    if hasattr(model, 'feature_importances_'):
+        st.subheader("🔍 Feature Importances")
+        importance = pd.Series(model.feature_importances_, index=features).sort_values(ascending=False)
         st.bar_chart(importance)
 
-    if model == "Linear Regression":
-        st.subheader("Summary Statistics")
-        X_train_const = sm.add_constant(X_train)
-        ols = sm.OLS(y_train, X_train_const).fit()
-        st.text(ols.summary)
-
-        st.subheader("Coefficients")
+    if model_name == "Linear Regression":
+        st.subheader("📈 Coefficients")
         coef = pd.Series(model.coef_, index=features)
         st.write(coef)
+
+        st.subheader("📘 Statistical Summary")
+        X_train_const = sm.add_constant(X_train)
+        ols = sm.OLS(y_train, X_train_const).fit()
+        st.text(ols.summary())
+
