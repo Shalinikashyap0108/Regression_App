@@ -38,8 +38,8 @@ X = df[features]
 y = df[target]
 
 # train/test split
-test_size = st.sidebar.slider("Test Size (%)", 5, 10, 15, 20, 25, 30)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size/100, random_state=42)
+test_size_n = st.sidebar.slider("Test Size (%)", 10, 20, 30)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size_n/100, random_state=42)
 
 
 model_name = st.sidebar.selectbox("Choose Model", ["Linear Regression", "Decision Tree", "Random Forest"])
